@@ -87,7 +87,7 @@ gen_data() {
 
 gen_iptables() {
   cat <<EOF
-    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA})
+$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA})
 EOF
 }
 
@@ -108,7 +108,7 @@ WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
 IP4=$(ip -4 addr show ens33 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-IP6=$(ip -6 addr show ens33 | grep -oP '(?<=inet6\s)[\da-f:]+(?=/64)')
+IP6=$(ip -6 addr show ens33 | grep -oP '(?<=inet6\s)[\da-f:]+(?=/64)' | head -n 1)
 
 echo "Internal ip = ${IP4}. External subnet for ip6 = ${IP6}"
 
