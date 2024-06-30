@@ -1,5 +1,4 @@
 #!/bin/sh
-
 random() {
   tr </dev/urandom -dc A-Za-z0-9 | head -c5
   echo
@@ -12,12 +11,11 @@ gen64() {
   }
   echo "$1:$(ip64):$(ip64):$(ip64):$(ip64)"
 }
-
 install_3proxy() {
-  echo "Installing 3proxy"
-  URL="https://github.com/z3APA3A/3proxy/archive/refs/tags/0.8.13.tar.gz"
-  wget -qO- $URL | tar -xzvf-
-  cd 3proxy-0.8.13
+  echo "installing 3proxy"
+  URL="https://github.com/z3APA3A/3proxy/archive/3proxy-0.8.6.tar.gz"
+  wget -qO- $URL | bsdtar -xvf-
+  cd 3proxy-3proxy-0.8.6
   make -f Makefile.Linux
   mkdir -p /usr/local/etc/3proxy/{bin,logs,stat}
   cp src/3proxy /usr/local/etc/3proxy/bin/
@@ -61,6 +59,7 @@ upload_proxy() {
   echo "Proxy is ready! Format IP:PORT:LOGIN:PASS"
   echo "Download zip archive from: ${URL}"
   echo "Password: ${PASS}"
+
 }
 
 install_jq() {
@@ -88,7 +87,7 @@ gen_data() {
 
 gen_iptables() {
   cat <<EOF
-$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 " -m state --state NEW -j ACCEPT"}' ${WORKDATA})
+    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA})
 EOF
 }
 
@@ -98,22 +97,22 @@ $(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
-echo "Installing necessary packages"
-yum -y install gcc net-tools bsdtar zip wget >/dev/null
+echo "installing apps"
+yum -y install gcc net-tools bsdtar zip >/dev/null
 
 install_3proxy
 
-echo "Working folder = /home/proxy-installer"
+echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
-mkdir -p $WORKDIR && cd $WORKDIR
+mkdir $WORKDIR && cd $_
 
-IP4=$(curl -4 -s icanhazip.com)
-IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
+IP4=$(ip -4 addr show ens33 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+IP6=$(ip -6 addr show ens33 | grep -oP '(?<=inet6\s)[\da-f:]+(?=/64)')
 
-echo "Internal IP = ${IP4}. External subnet for IPv6 = ${IP6}"
+echo "Internal ip = ${IP4}. External subnet for ip6 = ${IP6}"
 
-echo "How many proxies do you want to create? Example: 500"
+echo "How many proxy do you want to create? Example 500"
 read COUNT
 
 FIRST_PORT=10000
@@ -137,7 +136,6 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 
-# Uncomment the following line if you want to upload the proxy file
 # upload_proxy
 
 install_jq && upload_2file
