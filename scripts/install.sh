@@ -87,13 +87,13 @@ gen_data() {
 
 gen_iptables() {
   cat <<EOF
-$(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA})
+    $(awk -F "/" '{print "iptables -I INPUT -p tcp --dport " $4 "  -m state --state NEW -j ACCEPT"}' ${WORKDATA})
 EOF
 }
 
 gen_ifconfig() {
   cat <<EOF
-$(awk -F "/" '{print "ifconfig ens33 inet6 add " $5 "/64"}' ${WORKDATA})
+$(awk -F "/" '{print "ifconfig enp0s25 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 
@@ -107,10 +107,10 @@ WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
 mkdir $WORKDIR && cd $_
 
-IP4=$(ip -4 addr show ens33 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-IP6=$(ip -6 addr show ens33 | grep -oP '(?<=inet6\s)[\da-f:]+(?=/64)' | head -n 1)
+IP4="192.168.1.9"
+IP6="2402:800:6142:1f89"
 
-echo "Internal ip = ${IP4}. External subnet for ip6 = ${IP6}"
+echo "Internal ip = ${IP4}. External sub for ip6 = ${IP6}"
 
 echo "How many proxy do you want to create? Example 500"
 read COUNT
